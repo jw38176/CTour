@@ -29,7 +29,7 @@
 Import('*')
 
 SimObject('Prefetcher.py', sim_objects=[
-    'BasePrefetcher', 'MultiPrefetcher', 'QueuedPrefetcher',
+    'BasePrefetcher', 'MultiPrefetcher', 'CoverageTournamentPrefetcher', 'QueuedPrefetcher',
     'StridePrefetcherHashedSetAssociative', 'StridePrefetcher',
     'TaggedPrefetcher', 'IndirectMemoryPrefetcher', 'SignaturePathPrefetcher',
     'SignaturePathPrefetcherV2', 'AccessMapPatternMatching', 'AMPMPrefetcher',
@@ -40,6 +40,7 @@ SimObject('Prefetcher.py', sim_objects=[
 Source('access_map_pattern_matching.cc')
 Source('base.cc')
 Source('multi.cc')
+Source('coverage.cc')
 Source('bop.cc')
 Source('delta_correlating_prediction_tables.cc')
 Source('irregular_stream_buffer.cc')

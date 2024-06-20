@@ -205,6 +205,9 @@ class Queued : public Base
                                    const CacheAccessor &cache) = 0;
     PacketPtr getPacket() override;
 
+    PacketPtr recordPacket(uint64_t index);
+    void recordCacheAccess(const PacketPtr &pkt, bool miss) override {};
+
     Tick nextPrefetchReadyTime() const override
     {
         return pfq.empty() ? MaxTick : pfq.front().tick;

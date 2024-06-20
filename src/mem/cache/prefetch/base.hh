@@ -215,6 +215,15 @@ class Base : public ClockedObject
         }
 
         /**
+         * Check if data is null
+         * @return true if data is null
+         */
+        bool hasData() const
+        {
+            return data != nullptr;
+        }
+
+        /**
          * Gets the associated data of the request triggering the event
          * @param Byte ordering of the stored data
          * @return the data
@@ -399,6 +408,9 @@ class Base : public ClockedObject
     {}
 
     virtual PacketPtr getPacket() = 0;
+
+    virtual PacketPtr recordPacket(uint64_t index) = 0;
+    virtual void recordCacheAccess(const PacketPtr &pkt, bool miss) = 0;
 
     virtual Tick nextPrefetchReadyTime() const = 0;
 

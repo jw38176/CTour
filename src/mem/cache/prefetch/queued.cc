@@ -263,6 +263,25 @@ Queued::getPacket()
     return pkt;
 }
 
+PacketPtr
+Queued::recordPacket(uint64_t index)
+{
+
+    if (pfq.empty()) {
+        // DPRINTF(CoverageDebug, "No hardware prefetches available.\n");
+        return nullptr;
+    }
+
+    PacketPtr pkt = pfq.front().pkt;
+
+    // DPRINTF(CoverageDebug, "Recording the %dth prefetch in the queue.\n", index);
+
+    assert(pkt != nullptr);
+    // DPRINTF(CoverageDebug, "Recording prefetch for %#x.\n", pkt->getAddr());
+
+    return pkt;
+}
+
 Queued::QueuedStats::QueuedStats(statistics::Group *parent)
     : statistics::Group(parent),
     ADD_STAT(pfIdentified, statistics::units::Count::get(),

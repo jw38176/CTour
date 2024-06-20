@@ -127,6 +127,14 @@ class MultiPrefetcher(BasePrefetcher):
     prefetchers = VectorParam.BasePrefetcher([], "Array of prefetchers")
 
 
+class CoverageTournamentPrefetcher(BasePrefetcher):
+    type = "CoverageTournamentPrefetcher"
+    cxx_class = "gem5::prefetch::CoverageTournament"
+    cxx_header = "mem/cache/prefetch/coverage.hh"
+
+    prefetchers = VectorParam.BasePrefetcher([], "Array of prefetchers")
+
+
 class QueuedPrefetcher(BasePrefetcher):
     type = "QueuedPrefetcher"
     abstract = True

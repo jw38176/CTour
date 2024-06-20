@@ -453,6 +453,11 @@ BaseCache::recvTimingReq(PacketPtr pkt)
         // the packet in a response
         ppHit->notify(CacheAccessProbeArg(pkt,accessor));
 
+        if (prefetcher)
+        {
+            prefetcher->recordCacheAccess(pkt, false);
+        }
+
         if (prefetcher && blk && blk->wasPrefetched()) {
             DPRINTF(Cache, "Hit on prefetch for addr %#x (%s)\n",
                     pkt->getAddr(), pkt->isSecure() ? "s" : "ns");
@@ -461,6 +466,12 @@ BaseCache::recvTimingReq(PacketPtr pkt)
 
         handleTimingReqHit(pkt, blk, request_time);
     } else {
+
+        if (prefetcher)
+        {
+            prefetcher->recordCacheAccess(pkt, true);
+        }
+
         handleTimingReqMiss(pkt, blk, forward_time, request_time);
 
         ppMiss->notify(CacheAccessProbeArg(pkt,accessor));

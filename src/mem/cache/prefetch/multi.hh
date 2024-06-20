@@ -61,6 +61,9 @@ class Multi : public Base
     PacketPtr getPacket() override;
     Tick nextPrefetchReadyTime() const override;
 
+    void recordCacheAccess(const PacketPtr &pkt, bool miss) override {};
+    PacketPtr recordPacket(uint64_t index) override {return nullptr;};
+
     /** @{ */
     /**
      * Ignore notifications since each sub-prefetcher already gets a

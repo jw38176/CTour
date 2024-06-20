@@ -44,15 +44,11 @@ IndirectMemory::IndirectMemory(const IndirectMemoryPrefetcherParams &p)
     shiftValues(p.shift_values), prefetchThreshold(p.prefetch_threshold),
     streamCounterThreshold(p.stream_counter_threshold),
     streamingDistance(p.streaming_distance),
-    prefetchTable((name() + ".PrefetchTable").c_str(),
-                  p.pt_table_entries,
-                  p.pt_table_assoc,
-                  p.pt_table_replacement_policy,
-                  p.pt_table_indexing_policy,
+    prefetchTable(p.pt_table_assoc, p.pt_table_entries,
+                  p.pt_table_indexing_policy, p.pt_table_replacement_policy,
                   PrefetchTableEntry(p.num_indirect_counter_bits)),
-    ipd((name() + ".IPD").c_str(), p.ipd_table_entries, p.ipd_table_assoc,
+    ipd(p.ipd_table_assoc, p.ipd_table_entries, p.ipd_table_indexing_policy,
         p.ipd_table_replacement_policy,
-        p.ipd_table_indexing_policy,
         IndirectPatternDetectorEntry(p.addr_array_len, shiftValues.size())),
     ipdEntryTrackingMisses(nullptr), byteOrder(p.sys->getGuestByteOrder())
 {
@@ -65,6 +61,11 @@ IndirectMemory::calculatePrefetch(const PrefetchInfo &pfi,
 {
     // This prefetcher requires a PC
     if (!pfi.hasPC()) {
+        return;
+    }
+
+    // Skip empty accesses
+    if (!pfi.hasData()) {
         return;
     }
 
@@ -85,7 +86,8 @@ IndirectMemory::calculatePrefetch(const PrefetchInfo &pfi,
         }
     } else {
         // if misses are not being tracked, attempt to detect stream accesses
-        PrefetchTableEntry *pt_entry = prefetchTable.findEntry(pc);
+        PrefetchTableEntry *pt_entry =
+            prefetchTable.findEntry(pc, false /* unused */);
         if (pt_entry != nullptr) {
             prefetchTable.accessEntry(pt_entry);
 
@@ -159,7 +161,7 @@ IndirectMemory::calculatePrefetch(const PrefetchInfo &pfi,
         } else {
             pt_entry = prefetchTable.findVictim(pc);
             assert(pt_entry != nullptr);
-            prefetchTable.insertEntry(pc, pt_entry);
+            prefetchTable.insertEntry(pc, false /* unused */, pt_entry);
             pt_entry->address = addr;
             pt_entry->secure = is_secure;
         }
@@ -172,7 +174,8 @@ IndirectMemory::allocateOrUpdateIPDEntry(
 {
     // The address of the pt_entry is used to index the IPD
     Addr ipd_entry_addr = (Addr) pt_entry;
-    IndirectPatternDetectorEntry *ipd_entry = ipd.findEntry(ipd_entry_addr);
+    IndirectPatternDetectorEntry *ipd_entry = ipd.findEntry(ipd_entry_addr,
+                                                            false/* unused */);
     if (ipd_entry != nullptr) {
         ipd.accessEntry(ipd_entry);
         if (!ipd_entry->secondIndexSet) {
@@ -189,7 +192,7 @@ IndirectMemory::allocateOrUpdateIPDEntry(
     } else {
         ipd_entry = ipd.findVictim(ipd_entry_addr);
         assert(ipd_entry != nullptr);
-        ipd.insertEntry(ipd_entry_addr, ipd_entry);
+        ipd.insertEntry(ipd_entry_addr, false /* unused */, ipd_entry);
         ipd_entry->idx1 = index;
         ipdEntryTrackingMisses = ipd_entry;
     }
